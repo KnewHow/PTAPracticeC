@@ -1,0 +1,85 @@
+1012. The Best Rank (25)
+时间限制
+400 ms
+内存限制
+65536 kB
+代码长度限制
+16000 B
+判题程序
+Standard
+作者
+CHEN, Yue
+
+To evaluate(评价) the performance of our first year CS majored students, we consider their grades of three courses 
+only: C - C Programming Language, M - Mathematics (Calculus or Linear Algebra), and E - English. At the mean time, 
+we encourage students by emphasizing on their best ranks(等级) -- that is, among the four ranks with respect to the
+three courses and the average grade, we print the best rank for each student.
+
+For example, The grades of C, M, E and A - Average of 4 students are given as the following:
+
+StudentID  C  M  E  A
+310101     98 85 88 90
+310102     70 95 88 84
+310103     82 87 94 88
+310104     91 91 91 91
+
+Then the best ranks for all the students are No.1 since the 1st one has done the best in C Programming Language, 
+while the 2nd one in Mathematics, the 3rd one in English, and the last one in average.
+
+Input
+
+Each input file contains one test case. Each case starts with a line containing 2 numbers N and M (<=2000), 
+which are the total number of students, and the number of students who would check their ranks, 
+respectively(各自的). Then N lines follow, each contains a student ID which is a string of 6 digits, 
+followed by the three integer grades (in the range of [0, 100]) of that student in the order of C, M and E. 
+Then there are M lines, each containing a student ID.
+
+Output
+
+For each of the M students, print in one line the best rank for him/her, and the symbol of the corresponding rank, 
+separated by a space.
+
+The priorities(优先级) of the ranking methods are ordered as A > C > M > E. Hence if there are two or more ways for a 
+student to obtain the same best rank, output the one with the highest priority.
+
+If a student is not on the grading list, simply output "N/A".
+Sample Input
+
+题目大意：给出学生三门课的成绩，可以算出学生的平均成绩，对所有学生的这四门课进行排序，找到每个学生排名最高的成绩
+如果成绩相同，按照A > C > M > E排序
+
+5 6
+310101 98 85 88
+310102 70 95 88
+310103 82 87 94
+310104 91 91 91
+310105 85 90 90
+310101
+310102
+310103
+310104
+310105
+999999
+
+Sample Output
+
+1 C
+1 M
+1 E
+1 A
+3 A
+N/A
+
+Algorithms and Data Structure:
+Use a Class to store each student information,the use a map to wrap them,key is the student ID,
+Use a List to store search list. Because we need to print each student best rank. So the we need to 
+location the student quickly,the best method is to find student ranks by student's id. So in sort algorithms,
+we not only use a method whose performance is good,but also bring student id. I prepare for use merge sort to sort a List
+of <code>List<Student></code>,using merge sort loop algorithms.When we sort by a score,we traverse the list and set each
+student rank in this scores.
+
+310101 98 85 88
+310102 70 95 88
+310103 82 87 94
+310104 91 91 91
+310105 85 90 90
