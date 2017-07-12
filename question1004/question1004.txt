@@ -1,0 +1,78 @@
+1004. Counting Leaves (30)
+时间限制
+400 ms
+内存限制
+65536 kB
+代码长度限制
+16000 B
+判题程序
+Standard
+作者
+CHEN, Yue
+
+A family hierarchy(体系) is usually presented by a pedigree(家谱) tree. Your job is to count those family members
+who have no child.
+
+Input
+
+Each input file contains one test case. Each case starts with a line containing 0 < N < 100, the number of nodes 
+in a tree, and M (< N), the number of non-leaf nodes. Then M lines follow, each in the format:
+
+ID K ID[1] ID[2] ... ID[K]
+
+where ID is a two-digit number representing a given non-leaf node, K is the number of its children, followed 
+by a sequence of two-digit ID's of its children. For the sake of simplicity, let us fix the root ID to be 01.
+
+Output
+
+For each test case, you are supposed to count those family members who have no child for every seniority(层) 
+level starting from the root. The numbers must be printed in a line, separated by a space, and there must be 
+no extra space at the end of each line.
+
+The sample case represents a tree with only 2 nodes, where 01 is the root and 02 is its only child. 
+Hence(因此) on the root 01 level, there is 0 leaf node; and on the next level, there is 1 leaf node. 
+Then we should output "0 1" in a line.
+Sample Input
+
+2 1
+01 1 02
+
+Sample Output
+
+0 1
+
+
+Data Structures:
+Use a array to store all nodes and initialize all to -1
+If a A is B parent,we let arr[B]=A. build relationship in this array.
+such a following relationship:
+
+10 4
+01 2 03 04
+02 2 05 06
+03 2 07 08
+05 2 09 10
+
+relation array
+index		parent
+0			   -
+1			  -1
+2			  -1
+3			  1
+4			  1
+5             2
+6			  2
+7			  3
+8			  3
+9             5
+10	          5
+
+We will build a temporary array to strore same level nodes
+first we find parent is -1 elemets
+a{1,2}  find their child nodes	a{3,4,5,6} 1 and 2 all hava children nodes,so the first level leaf nodes is 0
+a{3,4,5,6} find their child nodes a{7,8,9,10} 4 and 6 have no any children nodes,so the second level leaf nodes is 2
+a{7,8,9,10} find their child nodes a{},they has no  have no any children nodes,so the third level leaf nodes is four
+The T(N)=O(N^2)
+The question has tell us how many no-leaf nodes,then give them children nodes. So we can use an array
+to record the node whether is a leaf node,if it is a leaf node,we don't search array to find its children nodes,otherwise
+we search array to find its children nodes
