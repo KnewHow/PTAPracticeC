@@ -84,7 +84,9 @@ int initQueues(ptrQueue queues[], int n, int m, int k) {
 		while (counter < k) {
 			for (int i = 0; i < m; i++) {
 				for (int j = 0; j < n; j++) {
-					addQueue(queues[j], counter++);
+					if (counter < k) {
+						addQueue(queues[j], counter++);
+					}
 				}
 			}
 		}
@@ -93,31 +95,41 @@ int initQueues(ptrQueue queues[], int n, int m, int k) {
 }
 
 void getInputArray(int a[], int length) {
+	int value;
 	for (int i = 0; i < length; i++) {
-		scanf("%d", &a[i]);
+		scanf("%d", &value);
+		a[i] = value;
 	}
 }
 
-void getTime(ptrQueue queues[], int customers[], int n, int m, int k, int flag,
-		int time[]) {
+void getTime2(ptrQueue queues[], int customers[], int n, int m, int k, int flag,
+		int time[], int start[], int origin[]) {
 	int counter = n * m;
-	for (int i = 0; i < END_SECONDS + 1; i++) {
+	for (int i = 0; i < END_SECONDS; i++) {
 		for (int j = 0; j < n; j++) {
 			ptrQueue queue = queues[j];
 			if (isQueueEmpty(queue)) {
 				continue;
 			} else {
-				if (customers[queue->font->element] != 0) {
-					customers[queue->font->element]--;
-				} else {
-					time[queue->font->element] = i;
-					deleteQueue(queue);
-					if (!isQueueEmpty(queue)) {
-						customers[queue->font->element]--;
+				if (customers[queue->font->element]
+						== origin[queue->font->element]) {
+					start[queue->font->element] = i + 1;
+				}
+				customers[queue->font->element]--;
+				for (int q = 0; q < n; q++) {
+					ptrQueue queue = queues[q];
+					if (isQueueEmpty(queue)) {
+						continue;
+					} else {
+						if (customers[queue->font->element] == 0) {
+							time[queue->font->element] = i + 1;
+							deleteQueue(queue);
+							if (flag && counter < k) {
+								addQueue(queue, counter++);
+							}
+						}
 					}
-					if (flag && counter < k) {
-						addQueue(queue, counter++);
-					}
+
 				}
 			}
 
@@ -138,8 +150,8 @@ int getDigital(int num) {
 void formateString(int hour, int min) {
 	if (getDigital(hour) == 1) {
 		printf("0%d", hour);
-	}else{
-		printf("%d",hour);
+	} else {
+		printf("%d", hour);
 	}
 	printf(":");
 	if (min == 0) {
@@ -147,14 +159,15 @@ void formateString(int hour, int min) {
 	} else {
 		if (getDigital(min) == 1) {
 			printf("0%d\n", min);
-		}else{
-			printf("%d\n",min);
+		} else {
+			printf("%d\n", min);
 		}
 	}
 
 }
 
-void getQueries(int result[], int k, int queries[], int q) {
+void getQueries(int result[], int start[], int k, int queries[], int q,
+		int origin[]) {
 	for (int i = 0; i < q; i++) {
 		int index = queries[i];
 		index--;
@@ -163,10 +176,21 @@ void getQueries(int result[], int k, int queries[], int q) {
 			int hour = time / 60 + 8;
 			int min = time % 60;
 			formateString(hour, min);
-//			printf("%d:%d\n",hour,min);
+		} else if (start[index] < END_SECONDS) {
+			int time = start[index] + origin[index]-1;
+			int hour = time / 60 + 8;
+			int min = time % 60;
+			formateString(hour, min);
 		} else {
 			printf("Sorry\n");
 		}
+	}
+}
+
+
+void initArray(int a[], int length, int value) {
+	for (int i = 0; i < length; i++) {
+		a[i] = value;
 	}
 }
 
@@ -174,17 +198,23 @@ int main() {
 	int n, m, k, q;
 	scanf("%d %d %d %d", &n, &m, &k, &q);
 	int customers[k];
+	int origin[k];
 	int queries[q];
 	ptrQueue queues[n];
 	int result[k];
+	int startTime[k];
+	initArray(customers, k, 0);
+	initArray(customers, k, 540);
+	initArray(queries, q, 0);
+	initArray(result, k, END_SECONDS + 1);
 	getInputArray(customers, k);
 	getInputArray(queries, q);
-	int flag = initQueues(queues, n, m, k);
 	for (int i = 0; i < k; i++) {
-		result[i] = END_SECONDS + 1;
+		origin[i] = customers[i];
 	}
-	getTime(queues, customers, n, m, k, flag, result);
-	getQueries(result, k, queries, q);
+	int flag = initQueues(queues, n, m, k);
+	getTime2(queues, customers, n, m, k, flag, result, startTime, origin);
+	getQueries(result,startTime ,k, queries, q,origin);
 	return 0;
 }
 
