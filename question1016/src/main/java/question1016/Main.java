@@ -2,11 +2,12 @@ package question1016;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 /**
  * 
@@ -15,9 +16,16 @@ import java.util.Scanner;
 public class Main {
 	public static final List<Integer> toll = new ArrayList<>();
 	public static final int tollLength = 24;
-	public static Map<String, User> userMap = new HashMap<>();
-	public static final String OFF_LINE = "off_line";
-	public static final String ON_LINE = "on_line";
+	public static Map<String, User> userMap = new TreeMap<>(new Comparator<String>() {
+
+		@Override
+		public int compare(String o1, String o2) {
+			return o1.compareTo(o2);
+		}
+
+	});
+	public static final String OFF_LINE = "off-line";
+	public static final String ON_LINE = "on-line";
 	public static int thisMonth;
 
 	public static int day_merge;
@@ -28,13 +36,12 @@ public class Main {
 		Scanner sc = new Scanner(System.in);
 		getToll(sc);
 		int records = sc.nextInt();
-		System.out.println(toll.toString());
-		System.out.println(records);
 		sc.nextLine();
 		getRecores(records, sc);
 		sc.close();
 		sortMinutes();
 		getDayCharges();
+		calculateCharges();
 
 	}
 
@@ -59,12 +66,11 @@ public class Main {
 			}
 			int total_mins = transformString2Minutes(strs[1]);
 			if (strs[2].equals(ON_LINE)) {
-				user.getOff_list().add(total_mins);
+				user.getOn_line().add(total_mins);
 			} else {
 				user.getOff_list().add(total_mins);
 			}
 			userMap.put(username, user);
-			System.out.println(total_mins);
 		}
 	}
 
@@ -94,25 +100,52 @@ public class Main {
 	public static void calculateCharges() {
 		for (Entry<String, User> entry : userMap.entrySet()) {
 			User user = entry.getValue();
-			if (user.getOn_line().size() == 0 || user.getOff_list().size() == 0) {
-				user.setSumCharges(0);
-			} else {
-
-			}
+			calculateCharges(entry.getKey(), user.getOn_line(), user.getOff_list());
+			// if (user.getOn_line().size() == 0 || user.getOff_list().size() ==
+			// 0) {
+			// continue;
+			// } else {
+			// }
 		}
 	}
 
-	public static double calculateCharges(List<Integer> on_line, List<Integer> off_line) {
+	public static void calculateCharges(String name, List<Integer> on_line, List<Integer> off_line) {
 		int length = Math.min(on_line.size(), off_line.size());
+		if (on_line.size() > off_line.size()) {
+			int on_size = on_line.size();
+			int off_size = off_line.size();
+			for (int i = 0; i < on_size - off_size; i++) {
+				on_line.remove(i);
+			}
+		}
+		if (on_line.size() < off_line.size()) {
+			int on_size = on_line.size();
+			int off_size = off_line.size();
+			for (int i = 0; i < off_size - on_size; i++) {
+				off_line.remove(i);
+			}
+		}
 		double sum_charges = 0.0;
+		System.out.print(name + " ");
+		System.out.println(String.format("%02d", thisMonth));
 		for (int i = 0; i < length; i++) {
 			List<Integer> start = calculateCharges(on_line.get(i));
 			List<Integer> end = calculateCharges(off_line.get(i));
 			double current = (end.get(3) - start.get(3)) / 100.0;
-			sum_charges = sum_charges+current;
-			
+			sum_charges = sum_charges + current;
+			System.out.print(String.format("%02d", start.get(0)) + ":" + String.format("%02d", start.get(1)) + ":"
+					+ String.format("%02d", start.get(2)));
+			System.out.print(" ");
+			System.out.print(String.format("%02d", end.get(0)) + ":" + String.format("%02d", end.get(1)) + ":"
+					+ String.format("%02d", end.get(2)));
+			System.out.print(" ");
+			System.out.print(String.format("%02d", off_line.get(i) - on_line.get(i)));
+			System.out.print(" ");
+			System.out.print("$" + String.format("%.2f", current));
+			System.out.println();
 		}
-		return sum_charges;
+		System.out.print("Total amount: ");
+		System.out.println("$" + String.format("%.2f", sum_charges));
 	}
 
 	public static List<Integer> calculateCharges(int total_minutes) {
