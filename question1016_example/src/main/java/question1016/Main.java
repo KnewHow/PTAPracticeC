@@ -101,32 +101,30 @@ public class Main {
 		for (Entry<String, User> entry : userMap.entrySet()) {
 			User user = entry.getValue();
 			calculateCharges(entry.getKey(), user.getOn_line(), user.getOff_list());
+			// if (user.getOn_line().size() == 0 || user.getOff_list().size() ==
+			// 0) {
+			// continue;
+			// } else {
+			// }
 		}
 	}
 
 	public static void calculateCharges(String name, List<Integer> on_line, List<Integer> off_line) {
-		int index = 0;
-		int length = 0;
-		for (int i = 1; i < on_line.size(); i++) {
-			int value = off_line.get(0);
-			if (on_line.get(i - 1) < value && on_line.get(i) > value) {
-				index = i - 1;
+		int length = Math.min(on_line.size(), off_line.size());
+		if (on_line.size() > off_line.size()) {
+			int on_size = on_line.size();
+			int off_size = off_line.size();
+			for (int i = 0; i < on_size - off_size; i++) {
+				on_line.remove(i);
 			}
 		}
-		List<Integer> temp = new ArrayList<>();
-		if (index != 0) {
-			for (int i = index; i < on_line.size(); i++) {
-				temp.add(on_line.get(i));
-				on_line = temp;
+		if (on_line.size() < off_line.size()) {
+			int on_size = on_line.size();
+			int off_size = off_line.size();
+			for (int i = 0; i < off_size - on_size; i++) {
+				off_line.remove(i);
 			}
-		} else if (index == 0 && on_line.get(on_line.size() - 1) < off_line.get(0)) {
-			temp.add(on_line.get(on_line.size() - 1));
-			on_line = temp;
-		} else if (on_line.get(0) > off_line.get(off_line.size() - 1)) {
-			on_line = temp;
 		}
-
-		length = Math.min(on_line.size(), off_line.size());
 		double sum_charges = 0.0;
 		System.out.print(name + " ");
 		System.out.println(String.format("%02d", thisMonth));
