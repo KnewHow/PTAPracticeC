@@ -13,8 +13,12 @@
 #define MAX_NAME_LENGTH 20
 #define MAX_STATUS_LENGTH 8
 
-const char on_line[] = "on_line";
-const char off_line[] = "off_line";
+const char on_line[] = "on-line";
+const char off_line[] = "off-line";
+
+int visited[MAX_RECORD] = { 0 };
+
+const int trans = 24 * 60;
 
 /**
  * A integer array to store toll
@@ -32,6 +36,7 @@ struct node {
 	int day;
 	int hour;
 	int minute;
+	int time;
 	int flag;
 };
 
@@ -57,6 +62,9 @@ void getRecords(int n) {
 		scanf("%d:%d:%d:%d", &records[i].month, &records[i].day,
 				&records[i].hour, &records[i].minute);
 		scanf("%s", status);
+		int time = records[i].day * trans + records[i].hour * 60
+				+ records[i].minute;
+		records[i].time = time;
 		if (strcmp(status, on_line) == 0) {
 			records[i].flag = 0;
 		} else {
@@ -70,7 +78,70 @@ void toString(int n) {
 		printf("%s", records[i].name);
 		printf(" %d:%d:%d:%d", records[i].month, records[i].day,
 				records[i].hour, records[i].minute);
+		printf(" %d", records[i].time);
 		printf(" %d\n", records[i].flag);
+	}
+}
+
+int cmp(const void*a, const void *b) {
+	if (strcmp(((struct node*) a)->name, ((struct node*) b)->name) != 0) {
+		return strcmp(((struct node*) a)->name, ((struct node*) b)->name);
+	} else {
+		return ((struct node*) a)->time - ((struct node*) b)->time;
+	}
+}
+
+int getSingleMonery(int index) {
+	int sumMoney = records[index].day * toll[24];
+	for (int i = 0; i < records[index].hour; i++) {
+		sumMoney = sumMoney + toll[i] * 60;
+	}
+	sumMoney = sumMoney + toll[records[index].hour] * records[index].minute;
+	return sumMoney;
+}
+
+double getMonery(int index) {
+	int m1 = getSingleMonery(index - 1);
+	int m2 = getSingleMonery(index);
+	return (m2 - m1) / 100;
+}
+
+void getResult(int n) {
+	char currentName[MAX_NAME_LENGTH + 1];
+	strcpy(currentName, records[0].name);
+	double sumCherge = 0.0;
+	printf("%s", currentName);
+	printf("%02d\n", records[0].month);
+	for (int i = 0; i < n - 1; i++) {
+		if (!visited[i] && strcmp(records[i].name, records[i + 1].name) == 0
+				&& records[i].flag == 0 && records[i + 1].flag == 1) {
+			visited[i] = 1;
+			visited[i + 1] = 1;
+			if (strcmp(currentName, records[i].name) == 0) {
+				double currentCherge = getMonery(i + 1);
+				sumCherge = sumCherge + currentCherge;
+				printf("%02d:%02d:%02d %02d:%02d:%02d", records[i].day,
+						records[i].hour, records[i].minute, records[i + 1].day,
+						records[i + 1].hour, records[i + 1].minute);
+				printf(" $%.2f\n", currentCherge);
+			} else {
+				strcpy(currentName, records[i].name);
+				printf("Total amount: $%.2f\n", sumCherge);
+				sumCherge = 0.0;
+				printf("%s", currentName);
+				printf("%02d\n", records[i].month);
+				double currentCherge = getMonery(i + 1);
+				sumCherge = sumCherge + currentCherge;
+			}
+
+		} else if (!visited[i]
+				&& strcmp(records[i].name, records[i + 1].name) != 0) {
+			printf("Total amount: $%.2f\n", sumCherge);
+			sumCherge = 0.0;
+			printf("%s", currentName);
+			printf("%02d\n", records[i].month);
+			printf("Total amount: $%.2f\n", sumCherge);
+		}
 	}
 }
 
@@ -79,7 +150,8 @@ int main() {
 	getToll();
 	scanf("%d", &n);
 	getRecords(n);
-	toString(n);
+	qsort(records, n, sizeof(struct node), cmp);
+	getRecords(n);
 	printf("just test");
 }
 
