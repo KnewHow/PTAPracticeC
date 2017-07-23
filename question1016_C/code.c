@@ -19,6 +19,7 @@ const char off_line[] = "off-line";
 int visited[MAX_RECORD] = { 0 };
 
 const int trans = 24 * 60;
+int flag = 0;
 
 /**
  * A integer array to store toll
@@ -92,7 +93,7 @@ int cmp(const void*a, const void *b) {
 }
 
 int getSingleMonery(int index) {
-	int sumMoney = records[index].day * toll[24];
+	int sumMoney = records[index].day * toll[24] * 60;
 	for (int i = 0; i < records[index].hour; i++) {
 		sumMoney = sumMoney + toll[i] * 60;
 	}
@@ -101,48 +102,56 @@ int getSingleMonery(int index) {
 }
 
 double getMonery(int index) {
-	int m1 = getSingleMonery(index - 1);
-	int m2 = getSingleMonery(index);
-	return (m2 - m1) / 100;
+	int m1 = getSingleMonery(index);
+	int m2 = getSingleMonery(index + 1);
+	return (m2 - m1) / 100.0;
+}
+
+void printformate(int i) {
+	printf("%02d:%02d:%02d %02d:%02d:%02d", records[i].day, records[i].hour,
+			records[i].minute, records[i + 1].day, records[i + 1].hour,
+			records[i + 1].minute);
+	printf(" %d", records[i + 1].time - records[i].time);
 }
 
 void getResult(int n) {
 	char currentName[MAX_NAME_LENGTH + 1];
-	strcpy(currentName, records[0].name);
 	double sumCherge = 0.0;
-	printf("%s", currentName);
-	printf("%02d\n", records[0].month);
 	for (int i = 0; i < n - 1; i++) {
 		if (!visited[i] && strcmp(records[i].name, records[i + 1].name) == 0
 				&& records[i].flag == 0 && records[i + 1].flag == 1) {
 			visited[i] = 1;
 			visited[i + 1] = 1;
+			if (n == 0) {
+				break;
+			}
+			if (flag == 0) {
+				strcpy(currentName, records[i].name);
+				printf("%s", currentName);
+				printf(" %02d\n", records[i].month);
+				flag = 1;
+			}
 			if (strcmp(currentName, records[i].name) == 0) {
-				double currentCherge = getMonery(i + 1);
+				double currentCherge = getMonery(i);
 				sumCherge = sumCherge + currentCherge;
-				printf("%02d:%02d:%02d %02d:%02d:%02d", records[i].day,
-						records[i].hour, records[i].minute, records[i + 1].day,
-						records[i + 1].hour, records[i + 1].minute);
+				printformate(i);
 				printf(" $%.2f\n", currentCherge);
-			} else {
+			} else if (strcmp(currentName, records[i].name) != 0) {
 				strcpy(currentName, records[i].name);
 				printf("Total amount: $%.2f\n", sumCherge);
 				sumCherge = 0.0;
 				printf("%s", currentName);
-				printf("%02d\n", records[i].month);
-				double currentCherge = getMonery(i + 1);
+				printf(" %02d\n", records[i].month);
+				double currentCherge = getMonery(i);
 				sumCherge = sumCherge + currentCherge;
+				printformate(i);
+				printf(" $%.2f\n", currentCherge);
 			}
 
-		} else if (!visited[i]
-				&& strcmp(records[i].name, records[i + 1].name) != 0) {
-			printf("Total amount: $%.2f\n", sumCherge);
-			sumCherge = 0.0;
-			printf("%s", currentName);
-			printf("%02d\n", records[i].month);
-			printf("Total amount: $%.2f\n", sumCherge);
 		}
 	}
+	printf("Total amount: $%.2f\n", sumCherge);
+
 }
 
 int main() {
@@ -151,7 +160,9 @@ int main() {
 	scanf("%d", &n);
 	getRecords(n);
 	qsort(records, n, sizeof(struct node), cmp);
-	getRecords(n);
-	printf("just test");
+//	toString(n);
+//	printf("just test");
+	getResult(n);
+	return 0;
 }
 
